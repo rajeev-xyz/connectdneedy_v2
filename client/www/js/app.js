@@ -2,7 +2,7 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
+angular.module('starter', ['ionic', 'ngCordova', 'starter.directives', '$http'])
 
 .run(function($ionicPlatform) {
     $ionicPlatform.ready(function() {
@@ -217,12 +217,22 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
             enableHighAccuracy: true,
             timeout: 5 * 1000
         };
-        $scope.saveRec = function(typeOfRec) {
+        $scope.saveRec = function(typeOfRec, $http) {
             if(typeOfRec == 'provider') {
                 alert('selectedItem '+ $scope.model['selectedItem'] + ' \ndate '+$scope.model['date'] +' \ntime slot '+$scope.model['selectedTimeSlot']+ ' \nItems '+$scope.model['peopleCount']+' \nloation '+latLng);
-            }
+                $http.post('/providers', {
+                'location': {lat:latLng.lat(), lng:latLng.lng()},
+                'radius' : 10,
+                'availDate' : $scope.model['date'],
+                'slot': $scope.model['selectedTimeSlot'],
+                'quantity' : $scope.model['peopleCount'],
+                'itemType' : $scope.model['selectedItem']
+        }).success(function() {
+            console.log('Provider Items Saved');
+        });
+        }
             if( typeOfRec == 'seeker'){
-                alert('ssker');
+                alert('seeker');
             }
         }
         $cordovaGeolocation.getCurrentPosition(options).then(function(position) {
@@ -318,17 +328,19 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
         //google.maps.event.addDomListener(window, 'load', initialize);
 
     })
-    .controller('volunteerCtrl', function($scope, $state, $cordovaGeolocation) {
+    .controller('volunteerCtrl', function($scope, $state, $cordovaGeolocation, $compile) {
+       var thisScope = $scope;
         $scope.vmodel = {};
         $scope.vmodel.radius = 2;
         $scope.vmodel.date = new Date();
         $scope.vmodel.selectedTimeSlot = '';
         var map = '';
         var latLng = '';
+ 
+ 
+ 
+ 
         
-        $scope.saveRec = function(){
-            alert('volunteer');
-        };
     
         $scope.disableTap = function() {
             container = document.getElementsByClassName('pac-container');
@@ -351,13 +363,13 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
                 cancelButtonLabel: 'CANCEL',
                 cancelButtonColor: '#000000'
             };
-
+ 
             document.addEventListener("deviceready", function() {
-
+ 
                 $cordovaDatePicker.show(options).then(function(date) {
                     alert(date);
                 });
-
+ 
             }, false);
         };
     
@@ -365,18 +377,23 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
             $scope.vmodel.radius = $scope.vmodel.radius - 1 > 0 ? $scope.vmodel.radius - 1 : 0;
             console.log('Fulfil is ' + $scope.vmodel.radius);
         };
-
+ 
         $scope.addRadius = function() {
             $scope.vmodel.radius = parseInt($scope.vmodel.radius) + 1;
             console.log('Fulfil is ' + $scope.vmodel.radius);
         };
-
+ 
         var latLng = new google.maps.LatLng(17.3840500, 78.4563600);
         var options = {
             enableHighAccuracy: true,
             timeout: 5 * 1000
         };
-      
+        $scope.saveRec = function(typeOfRec) {
+            if(typeOfRec == 'provider') {
+                alert('selectedItem '+ $scope.vmodel['selectedItem'] + ' \ndate '+$scope.vmodel['date'] +' \ntime slot '+$scope.vmodel['selectedTimeSlot']+ ' \nItems '+$scope.vmodel['peopleCount']+' \nloation '+latLng);
+            }
+        }
+ 
         $cordovaGeolocation.getCurrentPosition(options).then(function(position) {
             console.log('Entering search position');
             latLng = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
@@ -386,7 +403,7 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
             console.log("Could not get location, using default location");
             initialize();
         })
-
+ 
         function initialize() {
             console.log('Initializing location map for coordinates ' + latLng)
             var mapOptions = {
@@ -394,7 +411,8 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
                 zoom: 15,
                 mapTypeId: google.maps.MapTypeId.ROADMAP
             };
-            console.log('Map DOm ' + document.getElementById('map'));
+ 
+            
             map = new google.maps.Map(document.getElementById('map'), mapOptions);
             
             google.maps.event.addListenerOnce(map, 'idle', function() {
@@ -404,7 +422,7 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
                     animation: google.maps.Animation.DROP,
                     position: latLng
                 });
-
+ 
                 var infoWindow = new google.maps.InfoWindow({
                     content: "Here You are!"
                 });
@@ -414,16 +432,16 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
                     infoWindow.open(map, marker);
                 });
             });
-
+ 
             var input = (document.getElementById('pac-input'));
-
+ 
             // Create the autocomplete helper, and associate it with
             // an HTML text input box.
             var autocomplete = new google.maps.places.Autocomplete(input);
             autocomplete.bindTo('bounds', map);
-
+ 
             map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-
+ 
             var infowindow = new google.maps.InfoWindow();
             var marker = new google.maps.Marker({
                 map: map
@@ -431,7 +449,7 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
             google.maps.event.addListener(marker, 'click', function() {
                 infowindow.open(map, marker);
             });
-
+ 
             // Get the full place details when the user selects a place from the
             // list of suggestions.
             google.maps.event.addListener(autocomplete, 'place_changed', function() {
@@ -440,14 +458,14 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
                 if (!place.geometry) {
                     return;
                 }
-
+ 
                 if (place.geometry.viewport) {
                     map.fitBounds(place.geometry.viewport);
                 } else {
                     map.setCenter(place.geometry.location);
                     map.setZoom(17);
                 }
-
+ 
                 // Set the position of the marker using the place ID and location.
                 marker.setPlace( /** @type {!google.maps.Place} */ ({
                     placeId: place.place_id,
@@ -455,51 +473,85 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
                 }));
                 latLng = new google.maps.LatLng(place.geometry.location.lat(), place.geometry.location.lng());
                 marker.setVisible(true);
-
+ 
                 infowindow.setContent('<div><strong>' + place.name + '</strong><br>' +
                     'Place ID: ' + place.place_id + '<br>' +
                     place.formatted_address + '</div>');
                 infowindow.open(map, marker);
             });
-
+ 
             
         }
 //--- method to be added for near loc
+    var volMap = {provider: '', seeker:''};
+    $scope.connectLoc = '';
+       $scope.checkConnectMap = function(connectMap){
+        console.log('connect is called '+ connectMap.connectLoc.role);
+        
+        if(connectMap.connectLoc.role == 'Seeker'){
+            if(!volMap.provider){
+                volMap.seeker = connectMap.connectLoc;
+                alert('now select a provider as well');
+            }
+        }
+        
+        if(connectMap.connectLoc.role == 'Provider'){
+            if(!volMap.seeker){
+                volMap.provider = connectMap.connectLoc;
+                alert('now select a seeker as well');
+            }
+        }
+           console.log(volMap);
+        if(volMap.provider && volMap.seeker){
+            alert('Thanks for connecting '+volMap.provider.name+' and '+volMap.seeker.name);
+        }
+            
+    }
      var all_locations = [{
-        type: "Batallion",
-        name: "8th batallion",
+        role:'Provider',
+        itemType: "Food",
+        number: "5",
+        name: "Mallesh",
         lat: 17.4649711,
         lng: 78.3617583
-    }, {
-        type: "Apartment",
+    },
+    {
+        role:'Seeker',
+        itemType: "Food",
+        number: "5",
         name: "Tulip Park -Kedar",
         lat: 17.4666408,
         lng: 78.36309940000001
     }, {
-        type: "School",
-        name: "School 2",
-        lat: 40.724165,
-        lng: -73.983883
+        role:'Provider',
+        itemType: "Food",
+        number: "5",
+        name: "Restaurant",
+        lat: 17.471568,
+        lng: 78.360044
     }, {
-        type: "Restaurant",
-        name: "Restaurant 2",
-        lat: 40.721819,
-        lng: -73.991358
-    }, {
-        type: "School",
-        name: "School 3",
-        lat: 40.732056,
-        lng: -73.998683
+        role:'Seeker',
+        itemType: "Food",
+        number: "5",
+        name: "NGO ",
+        lat: 17.456075,
+        lng: 78.333090
+ 
+ 
+ 
     }];
     var radius_circle = null;
     var markers_on_map = [];
     var geocoder = new google.maps.Geocoder;
     var infowindow = new google.maps.InfoWindow;
+    $scope.callMe = function(){
+        alert('called');
+    }
     $scope.showCloseLocations = function() {
         console.log('In Nearest location method');
         var i;
         var radius_km = $scope.vmodel.radius;
-
+ 
         //remove all radii and markers from map before displaying new ones
         if (radius_circle) {
             radius_circle.setMap(null);
@@ -511,13 +563,13 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
                 markers_on_map[i] = null;
             }
         }
-
+ 
         if (geocoder) {
             console.log('In geo '+latLng);
             geocoder.geocode({
                 'location': latLng
             }, function(results, status) {
-                if (status == google.maps.GeocoderStatus.OK) {
+                  if (status == google.maps.GeocoderStatus.OK) {
                     if (status != google.maps.GeocoderStatus.ZERO_RESULTS) {
                         radius_circle = new google.maps.Circle({
                             center: latLng,
@@ -533,19 +585,28 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
                                 var marker_lat_lng = new google.maps.LatLng(location.lat, location.lng);
                                 console.log('mRKER '+marker_lat_lng);
                                 var distance_from_location = google.maps.geometry.spherical.computeDistanceBetween(latLng, marker_lat_lng); //distance in meters between your location and the marker
+                                var label = location.role == 'Provider' ? "P" : "S";
+                                var action = location.role == 'Provider' ? "give" :"take";
                                 if (distance_from_location <= radius_km * 1000) {
                                     var new_marker = new google.maps.Marker({
                                         position: marker_lat_lng,
                                         map: map,
-                                        title: location.name
+                                        title: location.name,
+                                        label: label
                                     });
                                     google.maps.event.addListener(new_marker, 'click', function() {
                                         if (infowindow) {
                                             infowindow.setMap(null);
                                             infowindow = null;
                                         }
+                                        $scope.connectLoc = location;
+                                        var contentString = '<div style="color:red"> '+location.role + '</br>Name: ' + location.name + 
+                                              '</br> Distance from your location : ' + parseFloat(distance_from_location/1000).toFixed(2) + "km"+'</br> Ready to  '+action+" "+location.itemType+' for '+location.number +
+                                            '</br> <a  ng-click="checkConnectMap(this)">Click Here to if you want to volunteer for this user</a></div>'
+                                        var compiled = $compile(contentString)(thisScope);
+                                        //console.log(compiled);
                                         infowindow = new google.maps.InfoWindow({
-                                            content: '<div style="color:red">' + location.name + '</div>' + " is " + distance_from_location + " meters from my location"+'</br><a href="#">Click Here to Opt in</a>',
+                                            content:  compiled[0] ,
                                             size: new google.maps.Size(150, 50),
                                             pixelOffset: new google.maps.Size(0, -30),
                                             position: marker_lat_lng,
@@ -565,5 +626,6 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
             });
         }
     }
+    
     
     });
