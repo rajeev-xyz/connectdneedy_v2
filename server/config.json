@@ -1,0 +1,6 @@
+{
+  "httpPort": 3001,
+  "mongoose": {
+    "uri": "mongodb://connect_needy:akmrv1234@ds021663.mlab.com:21663/connect"
+  }
+}

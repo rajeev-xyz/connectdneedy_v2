@@ -1,0 +1,26 @@
+<ion-view>
+   <ion-content>
+       <div data-tap-disabled="true" id="loginForm">
+      <div style="margin: 20px;">
+         <h3>Please enter your login details</h3>
+         <form id="login" name="authorizationForm" ng-submit="signIn(authorizationForm)">
+            <div class="form-group">
+               <label class="item item-input" for="email">
+               <input type="email" name = "email" id="email" placeholder="Email" required />
+               </label>
+            </div>
+            <div class="form-group">
+               <label class="item item-input" for="password">
+               <input type="password" id="password" name="password" placeholder="Password" required />
+               </label>
+            </div>
+            <ion-checkbox ng-class="checkbox" ng-model="isChecked">Remember Me</ion-checkbox>
+            <button type="submit" class="button button-block button-calm">Login</button></br>
+            <a href="/signup">Don't have an account?</a>
+          
+          </form>
+      </div>
+     
+    </div>
+   </ion-content>
+</ion-view>
