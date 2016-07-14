@@ -1,11 +1,13 @@
 var mongoose    = require('mongoose');
 var Schema      = mongoose.Schema;
 var userModel = require('./userSchema');
+console.log('User Model is ' + userModel);
 
 var seekerSchema = {
 
       _userObj: {
-             type:Schema.ObjectId, ref:'userModel'
+             //type:Schema.Types.ObjectId, ref:'User'
+             type:Object
           },
 
 

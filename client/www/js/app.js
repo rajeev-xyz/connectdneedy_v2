@@ -2,7 +2,7 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('starter', ['ionic', 'ngCordova', 'starter.directives', '$http'])
+angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
 
 .run(function($ionicPlatform) {
     $ionicPlatform.ready(function() {
@@ -64,7 +64,7 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives', '$http'])
 
 })
 
-.controller('appLoginCtrl', function($scope, $state) {
+.controller('appLoginCtrl', function($scope, $http, $state) {
 
         $scope.authorization = {
             username: '',
@@ -77,7 +77,7 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives', '$http'])
             }
         };
     })
-    .controller('homeCtrl', function($scope, $state, $timeout) {
+    .controller('homeCtrl', function($scope, $state, $http, $timeout) {
 
         $scope.showDetailsForUser = function(userRole) {
             $timeout(function() {
@@ -86,21 +86,21 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives', '$http'])
         }
 
     })
-    .controller('extendedMapCtrl', function($scope, $state) {
+    .controller('extendedMapCtrl', function($scope, $http, $state) {
 
         $scope.showDetailsForUser = function(userRole) {
             $state.go(userRole);
         }
 
     })
-    .controller('seekerCtrl', function($scope, $state) {
+    .controller('seekerCtrl', function($scope,$http, $state) {
 
         $scope.showDetailsForUser = function(userRole) {
             $state.go(userRole);
         }
 
     })
-    .controller('MapCtrl', function($scope, $state, $cordovaGeolocation) {
+    .controller('MapCtrl', function($scope, $state,$http, $cordovaGeolocation) {
         console.log('Inside Map controller');
         var options = {
             enableHighAccuracy: true,
@@ -141,7 +141,7 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives', '$http'])
             console.log("Could not get location");
         })
     })
-    .controller('providerCtrl', function($scope, $state, $cordovaGeolocation, $cordovaDatePicker) {
+    .controller('providerCtrl', function($scope, $http, $state, $cordovaGeolocation, $cordovaDatePicker) {
         $scope.model = {};
         $scope.model.itemCount = 2;
         $scope.model.peopleCount = 2;
@@ -217,7 +217,7 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives', '$http'])
             enableHighAccuracy: true,
             timeout: 5 * 1000
         };
-        $scope.saveRec = function(typeOfRec, $http) {
+        $scope.saveRec = function(typeOfRec) {
             if(typeOfRec == 'provider') {
                 alert('selectedItem '+ $scope.model['selectedItem'] + ' \ndate '+$scope.model['date'] +' \ntime slot '+$scope.model['selectedTimeSlot']+ ' \nItems '+$scope.model['peopleCount']+' \nloation '+latLng);
                 $http.post('/providers', {
@@ -328,7 +328,7 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives', '$http'])
         //google.maps.event.addDomListener(window, 'load', initialize);
 
     })
-    .controller('volunteerCtrl', function($scope, $state, $cordovaGeolocation, $compile) {
+    .controller('volunteerCtrl', function($scope, $state, $http, $cordovaGeolocation, $compile) {
        var thisScope = $scope;
         $scope.vmodel = {};
         $scope.vmodel.radius = 2;

@@ -3,14 +3,16 @@ var Schema = mongoose.Schema;
 var VolunteerDAO             = require('../DAO/VolunteerDAO');
 var ObjectIdSchema = Schema.ObjectId;
 var ObjectId = mongoose.Types.ObjectId;
+var matchController = require('./matchController');
 
 var volunteerDAO = new VolunteerDAO();
 
-function resultCallback(err,data,res){
+function resultCallback(err,data,res,ops,request){
     if(!err){
         console.log('Data returned from Server is ' + JSON.stringify(data));
-        volunteerDAO.insertIfMatchFound(data);
-        res.send( { success: data } );
+        //volunteerDAO.insertIfMatchFound(data);
+        matchController.processRequest(data,ops,request,res);
+        //res.send( { success: data } );
     }else{
         res.send( { error: "Not found!!!"} );
     }
@@ -34,7 +36,7 @@ saveVolunteerRequest : function (req, res) {
                      //data._id = ObjectIdSchema;
                      console.log('Data from req.body ' + JSON.stringify(data));
                      volunteerDAO.save(data, function (err, doc) {
-                         resultCallback(err, doc, res);
+                         resultCallback(err, doc, res,"insert","volunteer");
                      });
                  },
 updateVolunteerRequest : function (req, res) {

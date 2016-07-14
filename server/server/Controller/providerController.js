@@ -32,10 +32,10 @@ getProviderRequestById: function (req, res) {
 
 saveProviderRequest : function (req, res) {
 
-                     console.log('Request is ' + JSON.stringify(req.body));
+                     //console.log('Request is ' + JSON.stringify(req.body));
                      var data = JSON.parse(JSON.stringify(req.body));
                      data._id = mongoose.Types.ObjectId();
-                     console.log("data to be inserted is :" + JSON.stringify(data));
+                     //console.log("data to be inserted is :" + JSON.stringify(data));
                      providerDAO.save(data, function (err, doc) {
 
                          resultCallback(err, doc, res,"insert","provider");

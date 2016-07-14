@@ -5,11 +5,13 @@ var userModel = require('./userSchema');
 var providerSchema = {
 
      _userObj: {
+        //type:Schema.ObjectId, ref:'userModel'
         type:Object
+
      },
 
      location: {
-        type:{lat:String,lng:String}
+        type:{lat:String,lng:String,address:String}
 
      },
 

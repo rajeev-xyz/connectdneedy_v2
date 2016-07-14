@@ -51,10 +51,29 @@ function calcDistance(a, b, res) {
                 data.itemType = a.itemType;
                 data.state = "requested";
                 data.recipients = [];
-                finalSeek.forEach(function(ele){
+                finalSeek.forEach(function(ele,index){
                     var obj = {};
-                    obj.id = ele._id.$oid;
-                    obj.type = ele.constructor.modelName?"seeker":"volunteer";
+                    obj.type = ele.constructor.modelName =="seeker"?"seeker":"volunteer";
+                    console.log("Ele is "+ JSON.stringify(ele));
+                    ele = JSON.parse(JSON.stringify(ele));
+                    obj.id = ele._id;
+                    obj.location = ele.location;
+                    obj.itemType = ele.itemType;
+                    obj.quantity = ele.quantity;
+                    //if(ele.hasOwnProperty("volunteerObj"))
+
+                    /*if(Object.keys(ele).indexOf("volunteerObj")>-1)
+                    {
+                        console.log('in if ' + index);
+                        obj.type = "volunteer";
+                        obj.name = ele.volunteerObj.name;
+                    }
+                    else {
+                        console.log('in else ' + index);
+                        console.log('in else ele is '+ JSON.stringify(ele));
+                        obj.type = "seeker";*/
+                    obj.name = ele._userObj.name;
+                    console.log("Ele is " + JSON.stringify(ele));
                     data.recipients.push(obj);
                 });
 
@@ -66,9 +85,11 @@ function calcDistance(a, b, res) {
                     else
                         console.log('Data returned after save is '+ JSON.stringify(doc));
 
+                    res.send(data);
+
                 })
             //}
-            res.send(finalSeek);
+
             // Print the google web page.
         }
 
@@ -89,26 +110,64 @@ function calcDistance2(a, b, res) {
         console.log('str inside the loop is ' + str);
     });
 
-    console.log('String is ' + str);
+    console.log('Provider and Seeker are ' + JSON.stringify(b));
     var URL = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=' + sourceX + ',' + sourceY + '&destinations=' + str.substring(1) + '&key=AIzaSyAr9mUTDM3TlMHp1QNMFmIy4ro29ezV4kk';
     console.log('final URL is ' + URL);
 
     request(URL, function(error, response, body) {
         //resp.setEncoding('utf8');
-        var finalProvider = [];
+        var finalProviderAndSeeker = [];
         if (!error && response.statusCode == 200) {
             console.log('Response is ' + body);
             body = JSON.parse(body);
             body.rows[0].elements.forEach(function(ele, index) {
                 if (ele.distance.value / 1000 <= a.radius) {
-                    finalProvider.push(b[index]);
+                    finalProviderAndSeeker.push(b[index]);
                 }
 
-                console.log('Final Provider is ' + finalProvider);
+                console.log('Final Provider and Seeker is ' + finalProviderAndSeeker);
 
             });
 
-            res.send(finalProvider);
+            var data = {};
+                            data.availDate = a.availDate;
+                            data.slot = a.slot;
+                            data._id = mongoose.Types.ObjectId();
+                            data._providerObj= a._id;
+                            //data._providerObj= a.location;
+
+                            //data.quantity = a.quantity;
+                            //data.itemType = a.itemType;
+                            data.state = "requested";
+                            data.recipients = [];
+                            finalProviderAndSeeker.forEach(function(ele,index){
+                                var obj = {};
+                                obj.type = ele.constructor.modelName =="provider"?"provider":"seeker";
+
+                                ele = JSON.parse(JSON.stringify(ele));
+                                console.log("Ele is " + JSON.stringify(ele));
+                                obj.id = ele._id;
+                                obj.location = ele.location;
+                                //obj.itemType = ele.itemType;
+                                //obj.quantity = ele.quantity;
+                                //if(ele.hasOwnProperty("volunteerObj"))
+                                obj.name = ele._userObj.name;
+                                data.recipients.push(obj);
+                            });
+
+                            var ndao = new NotificationDAO();
+                            ndao.save(data,function(err,doc){
+                                if(err){
+                                    console.log('Error in saving Seeker + volunteer ' + err);
+                                }
+                                else {
+                                    console.log('Data returned after save is '+ JSON.stringify(doc));
+                                    res.send(data);
+                                    }
+
+
+
+                            })
             // Print the google web page.
         }
 
@@ -142,11 +201,11 @@ function handleSeekerRequest(data, ops, res) {
 
 function handleVolunteerRequest(data, ops, res) {
     if (ops === "insert")
-        handleSeekerInsert(data, res);
+        handleVolunteerInsert(data, res);
     else if (ops === "update")
-        handleSeekerUpdate(data, res);
+        handleVolunteerUpdate(data, res);
     else if (ops === "delete")
-        handleSeekerDelete(data, res);
+        handleVolunteerDelete(data, res);
     else
         console.log("Error in Seeker Operation");
 
@@ -155,32 +214,6 @@ function handleVolunteerRequest(data, ops, res) {
 function handleProviderInsert(data, res) {
 
         console.log("In Match Handle Provider");
-        if (data.mode === "self") {
-            //calcDistance(data.location, data.location);
-            seekerModel.find({
-                "availDate": data.availDate,
-                "slot": data.slot,
-                 "requiredQuantity": 15
-
-            }, function(err, seekers) {
-                if (err) {
-                    console.log("error in matching seekers " + err);
-                } else {
-                    var seek = [];
-                    seekers.forEach(function(element, index, array) {
-
-                        seek.push(element);
-
-
-                    }); //check for radius
-                    console.log('Seek is ' + seek.length);
-                    calcDistance(data, seek, res);
-                    //seek.push(array[index]);
-                }
-
-            });
-
-        } else {
             volunteerModel.find({
                 "availDate": data.availDate,
                 "slot": data.slot
@@ -207,6 +240,7 @@ function handleProviderInsert(data, res) {
                                 volunteerAndSeeker.push(element);
 
                             });
+                            console.log("Seek before calling calcDistance " + JSON.stringify(volunteerAndSeeker[0]));
                             calcDistance(data, volunteerAndSeeker, res);
                         }
                     });
@@ -216,18 +250,11 @@ function handleProviderInsert(data, res) {
 
             });
 
-
-
-        }
-
-
-
-
 }
 
-function handleSeekerInsert(data, res) {
-/*
-    volunteerModel.find({
+function handleVolunteerInsert(data, res) {
+    var providerAndSeeker = [];
+    providerModel.find({
                 "availDate": data.availDate,
                 "slot": data.slot
             }, function(err, volunteers) {
@@ -236,23 +263,22 @@ function handleSeekerInsert(data, res) {
                 } else {
 
 
-                    var volunteerAndSeeker = [];
+
                     volunteers.forEach(function(element, index, array) {
-                        volunteerAndSeeker.push(element); //insert in Notification table
+                        providerAndSeeker.push(element); //insert in Notification table
 
                     });
 
 
-                    notificationModel.find({
+                    seekerModel.find({
                         "availDate": data.availDate,
-                        "slot": data.slot,
-                        "state":"requested"
+                        "slot": data.slot
 
-                    }, function(err, notifications) {
+                    }, function(err, seekers) {
                         if (err) {
                             console.log("error in matching volunteers with providers");
                         } else {
-                            notifications.forEach(function(element, index, array) {
+                            seekers.forEach(function(element, index, array) {
                                 providerAndSeeker.push(element);
 
                             });
@@ -265,7 +291,7 @@ function handleSeekerInsert(data, res) {
 
             });
 
-*/
+
 }
 
 function handleProviderUpdate(data, res) {
@@ -273,13 +299,6 @@ function handleProviderUpdate(data, res) {
 
 
 }
-
-/*function handleProviderDelete(data, res){
-    notificationModel.find({
-
-    },function(err,))
-
-}*/
 
 function match(data, request, res) {
 

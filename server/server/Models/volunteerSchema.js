@@ -5,7 +5,8 @@ var userModel = require('./userSchema');
 var volunteerSchema = {
 
      _userObj: {
-                  type:Schema.ObjectId, ref:'userModel'
+                  //type:Schema.ObjectId, ref:'userModel'
+                  type:Object
                },
 
 
