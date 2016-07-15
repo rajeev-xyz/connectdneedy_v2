@@ -3,6 +3,8 @@ var provider        = require('../server/Controller/providerController');
 var seeker        = require('../server/Controller/seekerController');
 var volunteer        = require('../server/Controller/volunteerController');
 var notification        = require('../server/Controller/notificationController');
+var express         = require('express');
+
 
 module.exports.setup = function (app) {
     app.get('/users/:id', user.getUserById);

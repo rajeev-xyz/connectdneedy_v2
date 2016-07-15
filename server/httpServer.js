@@ -6,6 +6,17 @@ var url             = require('url');
 var mongoose        = require('mongoose');
 var config          = require('./configs/config');
 
+var express = require('express');
+var app = express();
+//var cors = require('cors');
+app.use(function(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Expose-Headers', '*');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Origin, X-Requested-With, Accept');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  next();
+});
+
 mongoose.connect(config.get('mongoose:uri'));
 var db = mongoose.connection;
 
@@ -23,12 +34,5 @@ db.once('open', function callback () {
             console.log("Express server listening on port " + config.get('httpPort'));
     });
 
-    app.all("/", function(req, res, next) {
-        res.header("Access-Control-Allow-Origin", "*");
-        res.header("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
-        res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
-        next();
-    });
-
-
 });
+
