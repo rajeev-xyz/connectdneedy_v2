@@ -150,6 +150,7 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
         $scope.model.selectedTimeSlot = '';
         $scope.model.map = ''
         var latLng = '';
+        var server = 'http://localhost:3000';
     
         $scope.disableTap = function() {
             container = document.getElementsByClassName('pac-container');
@@ -220,14 +221,17 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.directives'])
         $scope.saveRec = function(typeOfRec) {
             if(typeOfRec == 'provider') {
                 alert('selectedItem '+ $scope.model['selectedItem'] + ' \ndate '+$scope.model['date'] +' \ntime slot '+$scope.model['selectedTimeSlot']+ ' \nItems '+$scope.model['peopleCount']+' \nloation '+latLng);
-                $http.post('/providers', {
+                $http({
+                    method: 'POST',
+                    url: server + '/providers',
+                    data: {
                 'location': {lat:latLng.lat(), lng:latLng.lng()},
                 'radius' : 10,
                 'availDate' : $scope.model['date'],
                 'slot': $scope.model['selectedTimeSlot'],
                 'quantity' : $scope.model['peopleCount'],
                 'itemType' : $scope.model['selectedItem']
-        }).success(function() {
+        }}).success(function() {
             console.log('Provider Items Saved');
         });
         }
