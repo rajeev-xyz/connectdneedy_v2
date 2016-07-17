@@ -27,9 +27,6 @@ module.exports.setup = function (app) {
     app.put('/volunteers/:id', volunteer.updateVolunteerRequest);
     app.delete('/volunteers/:id', volunteer.removeVolunteerRequest);
 
-    //app.put('/notifications/', notification.insertToConnect);
     app.post('/notifications/', notification.insertToConnect);
-
-
 };
 

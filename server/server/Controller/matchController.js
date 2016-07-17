@@ -30,7 +30,8 @@ function calcDistance(a, b, res) {
         if (!error && response.statusCode == 200) {
             console.log('Response is ' + body);
             body = JSON.parse(body);
-            body.rows[0].elements.forEach(function(ele, index) {
+            if (body.rows[0].elements )
+                body.rows[0].elements.forEach(function(ele, index) {
                 if (ele.distance.value / 1000 <= a.radius) {
                     finalSeek.push(b[index]);
                 }
@@ -72,12 +73,13 @@ function calcDistance(a, b, res) {
                         console.log('in else ' + index);
                         console.log('in else ele is '+ JSON.stringify(ele));
                         obj.type = "seeker";*/
-                    obj.name = ele._userObj.name;
-                    console.log("Ele is " + JSON.stringify(ele));
-                    data.recipients.push(obj);
-                });
+                        var model = obj.type=="seeker"?seekerModel:volunteerModel;
 
-                var ndao = new NotificationDAO();
+                    obj.name = model.findById(ele._userObj._id,function(err,doc){
+                    console.log("Ele is " + JSON.stringify(ele));
+                    if(doc) {
+                        data.recipients.push(obj);
+                        var ndao = new NotificationDAO();
                 ndao.save(data,function(err,doc){
                     if(err){
                         console.log('Error in saving Seeker + volunteer ' + err);
@@ -87,7 +89,12 @@ function calcDistance(a, b, res) {
 
                     res.send(data);
 
-                })
+                });
+                    }
+                    });
+                });
+
+                
             //}
 
             // Print the google web page.
@@ -145,17 +152,20 @@ function calcDistance2(a, b, res) {
                                 obj.type = ele.constructor.modelName =="provider"?"provider":"seeker";
 
                                 ele = JSON.parse(JSON.stringify(ele));
-                                console.log("Ele is " + JSON.stringify(ele));
+                                console.log("Ele2 is " + JSON.stringify(ele));
                                 obj.id = ele._id;
                                 obj.location = ele.location;
                                 //obj.itemType = ele.itemType;
                                 //obj.quantity = ele.quantity;
                                 //if(ele.hasOwnProperty("volunteerObj"))
-                                obj.name = ele._userObj.name;
-                                data.recipients.push(obj);
-                            });
-
-                            var ndao = new NotificationDAO();
+                                var model = obj.type == "provider"?providerModel:seekerModel;
+                                obj.name = model.findById(ele._userObj._id,function(err,doc){
+                                    console.log("doc is : " + doc);
+                                    if(err)
+                                    console.log("Error in finding id "+ err);
+                                    if(doc){
+                                        data.recipients.push(doc);
+                                         var ndao = new NotificationDAO();
                             ndao.save(data,function(err,doc){
                                 if(err){
                                     console.log('Error in saving Seeker + volunteer ' + err);
@@ -167,7 +177,13 @@ function calcDistance2(a, b, res) {
 
 
 
-                            })
+                            });
+                                    }
+                                });
+                                
+                            });
+
+                           
             // Print the google web page.
         }
 
@@ -222,7 +238,7 @@ function handleProviderInsert(data, res) {
                     console.log("error in matching volunteers with providers");
                 } else {
 
-
+                    console.log('volunteer Match found '+ JSON.stringify(volunteers));    
                     var volunteerAndSeeker = [];
                     volunteers.forEach(function(element, index, array) {
                         volunteerAndSeeker.push(element); //insert in Notification table
@@ -236,11 +252,12 @@ function handleProviderInsert(data, res) {
                         if (err) {
                             console.log("error in matching volunteers with providers");
                         } else {
+                            console.log('seeker Match found '+ JSON.stringify(seekers));
                             seekers.forEach(function(element, index, array) {
                                 volunteerAndSeeker.push(element);
 
                             });
-                            console.log("Seek before calling calcDistance " + JSON.stringify(volunteerAndSeeker[0]));
+                            //console.log("Seek before calling calcDistance " + JSON.stringify(volunteerAndSeeker[0]));
                             calcDistance(data, volunteerAndSeeker, res);
                         }
                     });

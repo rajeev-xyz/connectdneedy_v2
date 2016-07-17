@@ -9,7 +9,7 @@ var volunteerDAO = new VolunteerDAO();
 
 function resultCallback(err,data,res,ops,request){
     if(!err){
-        console.log('Data returned from Server is ' + JSON.stringify(data));
+       // console.log('Data returned from Server is ' + JSON.stringify(data));
         //volunteerDAO.insertIfMatchFound(data);
         matchController.processRequest(data,ops,request,res);
         //res.send( { success: data } );
@@ -34,7 +34,7 @@ saveVolunteerRequest : function (req, res) {
 
                      data._id = mongoose.Types.ObjectId();
                      //data._id = ObjectIdSchema;
-                     console.log('Data from req.body ' + JSON.stringify(data));
+                     //console.log('Data from req.body ' + JSON.stringify(data));
                      volunteerDAO.save(data, function (err, doc) {
                          resultCallback(err, doc, res,"insert","volunteer");
                      });
@@ -47,7 +47,7 @@ updateVolunteerRequest : function (req, res) {
                      name :req.body.name
                      }
                      //data._id = ObjectIdSchema;
-                     console.log('Data from req.body ' + JSON.stringify(data));
+                     //console.log('Data from req.body ' + JSON.stringify(data));
                      volunteerDAO.save(data, function (err, doc) {
                          resultCallback(err, doc, res);
                      });
