@@ -20,3 +20,6 @@ The items that be donated can be anything like clothes, toys, vegetables/fruits,
 Some scenarios where this application will be helpful are when we have corporate parties/wedding/birthday celebrations where we have a lot of good food being wasted. 
 The organizers can log into our application and create a donor request. Based on the availability of volunteers, the items can be picked up and delivered to the nearest NGOs or charity homes.
 </p>
+
+
+<h4>More Details</h4> <p>http://www.hackathon.io/connect-the1</p>
